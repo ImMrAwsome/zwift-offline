@@ -6,6 +6,7 @@ import struct
 import sys
 import threading
 import time
+import csv
 from datetime import datetime
 if sys.version_info[0] > 2:
     import socketserver
@@ -41,7 +42,8 @@ play_count = 0
 last_rt = 0
 last_recv = 0
 ghosts = False
-spawn = list()
+start_rt = 0
+start_road = 0
 update_freq = 3
 timeout = 10
 
@@ -69,10 +71,22 @@ def saveGhost(player_id, name):
 
 def loadGhosts(player_id, state):
     global play
-    global spawn
+    global start_rt
+    global start_road
     if not player_id: return
     folder = '%s/%s/ghosts/load' % (STORAGE_DIR, player_id)
     if not os.path.isdir(folder): return
+    start_rt = 0
+    start_road = roadID(state)
+    sl_file = '%s/start_lines.csv' % STORAGE_DIR
+    if os.path.isfile(sl_file):
+        with open(sl_file, 'r') as fd:
+            sl = [tuple(line) for line in csv.reader(fd)]
+            rt = [t for t in sl if t[0] == str(course(state)) and t[1] == str(roadID(state))]
+            if rt:
+                start_rt = int(rt[0][3])
+                start_road = int(rt[0][2])
+    spawn = list()
     for (root, dirs, files) in os.walk(folder):
         for f in files:
             if f.endswith('.bin'):
@@ -83,15 +97,20 @@ def loadGhosts(player_id, state):
                         h = play.ghosts.add()
                         h.CopyFrom(g)
                         spawn.append(g.states[0].roadTime)
-    spawn.append(state.roadTime)
+    if not start_rt and spawn:
+        spawn.append(state.roadTime)
+        if isForward(state): start_rt = max(spawn)
+        else: start_rt = min(spawn)
     for g in play.ghosts:
+        while roadID(g.states[0]) != start_road:
+            del g.states[0]
         if isForward(g.states[0]):
-            while g.states[0].roadTime < max(spawn):
+            while not (g.states[0].roadTime <= start_rt and g.states[1].roadTime > start_rt):
                 del g.states[0]
         else:
-            while g.states[0].roadTime > min(spawn):
+            while not (g.states[0].roadTime >= start_rt and g.states[1].roadTime < start_rt):
                 del g.states[0]
-    del spawn[-1]
+        del g.states[0]
 
 
 def sigint_handler(num, frame):
@@ -221,7 +240,6 @@ class UDPHandler(socketserver.BaseRequestHandler):
     def handle(self):
         global rec
         global play
-        global spawn
         global last_rec
         global last_play
         global play_count
@@ -241,13 +259,12 @@ class UDPHandler(socketserver.BaseRequestHandler):
             if t > last_recv + timeout:
                 del rec.states[:]
                 del play.ghosts[:]
-                del spawn[:]
                 last_rt = 0
                 play_count = 0
                 ghosts = False
             last_recv = t
             if recv.state.roadTime:
-                if not last_rt and not spawn:
+                if not last_rt and not play.ghosts:
                     loadGhosts(recv.player_id, recv.state)
                     rec.player_id = recv.player_id
                 if last_rt and recv.state.roadTime != last_rt:
@@ -255,11 +272,15 @@ class UDPHandler(socketserver.BaseRequestHandler):
                         state = rec.states.add()
                         state.CopyFrom(recv.state)
                         last_rec = t
-                    if not ghosts and spawn:
+                    if not ghosts and play.ghosts and roadID(recv.state) == start_road:
                         if isForward(recv.state):
-                            if last_rt > max(spawn): ghosts = True
+                            if recv.state.roadTime >= start_rt and last_rt < start_rt:
+                                ghosts = True
                         else:
-                            if last_rt < min(spawn): ghosts = True
+                            if recv.state.roadTime <= start_rt and last_rt > start_rt:
+                                ghosts = True
+                if last_rt and recv.state.roadTime == last_rt:
+                    print('%s,%s,%s' % (course(recv.state), roadID(recv.state), recv.state.roadTime))
             last_rt = recv.state.roadTime
 
         message = udp_node_msgs_pb2.ServerToClient()
