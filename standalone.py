@@ -274,10 +274,10 @@ class UDPHandler(socketserver.BaseRequestHandler):
                         last_rec = t
                     if not ghosts and play.ghosts and roadID(recv.state) == start_road:
                         if isForward(recv.state):
-                            if recv.state.roadTime >= start_rt and last_rt < start_rt:
+                            if recv.state.roadTime >= start_rt and last_rt <= start_rt:
                                 ghosts = True
                         else:
-                            if recv.state.roadTime <= start_rt and last_rt > start_rt:
+                            if recv.state.roadTime <= start_rt and last_rt >= start_rt:
                                 ghosts = True
                 if last_rt and recv.state.roadTime == last_rt:
                     print('%s,%s,%s' % (course(recv.state), roadID(recv.state), recv.state.roadTime))
