@@ -105,10 +105,10 @@ def loadGhosts(player_id, state):
         while roadID(g.states[0]) != start_road:
             del g.states[0]
         if isForward(g.states[0]):
-            while not (g.states[0].roadTime <= start_rt and g.states[1].roadTime > start_rt):
+            while not (g.states[0].roadTime <= start_rt and g.states[1].roadTime >= start_rt):
                 del g.states[0]
         else:
-            while not (g.states[0].roadTime >= start_rt and g.states[1].roadTime < start_rt):
+            while not (g.states[0].roadTime >= start_rt and g.states[1].roadTime <= start_rt):
                 del g.states[0]
         del g.states[0]
 
