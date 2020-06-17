@@ -86,7 +86,7 @@ def loadGhosts(player_id, state):
             if rt:
                 start_rt = int(rt[0][3])
                 start_road = int(rt[0][2])
-    spawn = list()
+    s = list()
     for (root, dirs, files) in os.walk(folder):
         for f in files:
             if f.endswith('.bin'):
@@ -96,11 +96,11 @@ def loadGhosts(player_id, state):
                     if course(g.states[0]) == course(state) and roadID(g.states[0]) == roadID(state) and isForward(g.states[0]) == isForward(state):
                         h = play.ghosts.add()
                         h.CopyFrom(g)
-                        spawn.append(g.states[0].roadTime)
-    if not start_rt and spawn:
-        spawn.append(state.roadTime)
-        if isForward(state): start_rt = max(spawn)
-        else: start_rt = min(spawn)
+                        s.append(g.states[0].roadTime)
+    if not start_rt:
+        s.append(state.roadTime)
+        if isForward(state): start_rt = max(s)
+        else: start_rt = min(s)
     for g in play.ghosts:
         while roadID(g.states[0]) != start_road:
             del g.states[0]
@@ -110,7 +110,7 @@ def loadGhosts(player_id, state):
         else:
             while not (g.states[0].roadTime >= start_rt and g.states[1].roadTime <= start_rt):
                 del g.states[0]
-        del g.states[0]
+#        del g.states[0]
 
 
 def sigint_handler(num, frame):
