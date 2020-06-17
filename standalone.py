@@ -257,9 +257,11 @@ class UDPHandler(socketserver.BaseRequestHandler):
                         last_rec = t
                     if not ghosts and play.ghosts:
                         if isForward(recv.state):
-                            if last_rt > spawn: ghosts = True
+                            if recv.state.roadTime > spawn:
+                                ghosts = True
                         else:
-                            if last_rt < spawn: ghosts = True
+                            if recv.state.roadTime < spawn:
+                                ghosts = True
             last_rt = recv.state.roadTime
 
         message = udp_node_msgs_pb2.ServerToClient()
