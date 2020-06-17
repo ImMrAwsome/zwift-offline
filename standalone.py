@@ -279,8 +279,8 @@ class UDPHandler(socketserver.BaseRequestHandler):
                         else:
                             if recv.state.roadTime <= start_rt and last_rt >= start_rt:
                                 ghosts = True
-                if last_rt and recv.state.roadTime == last_rt:
-                    print('%s,%s,%s' % (course(recv.state), roadID(recv.state), recv.state.roadTime))
+                if recv.state.roadTime == last_rt:
+                    print('course',course(recv.state),'roadID',roadID(recv.state),'roadTime',recv.state.roadTime)
             last_rt = recv.state.roadTime
 
         message = udp_node_msgs_pb2.ServerToClient()
