@@ -76,16 +76,16 @@ def loadGhosts(player_id, state):
     if not player_id: return
     folder = '%s/%s/ghosts/load' % (STORAGE_DIR, player_id)
     if not os.path.isdir(folder): return
-    start_rt = 0
     start_road = roadID(state)
+    start_rt = 0
     sl_file = '%s/start_lines.csv' % STORAGE_DIR
     if os.path.isfile(sl_file):
         with open(sl_file, 'r') as fd:
             sl = [tuple(line) for line in csv.reader(fd)]
-            rt = [t for t in sl if t[0] == str(course(state)) and t[1] == str(roadID(state))]
+            rt = [t for t in sl if t[0] == str(course(state)) and t[1] == str(roadID(state)) and t[2] == str(isForward(state))]
             if rt:
-                start_rt = int(rt[0][3])
-                start_road = int(rt[0][2])
+                start_road = int(rt[0][3])
+                start_rt = int(rt[0][4])
     s = list()
     for (root, dirs, files) in os.walk(folder):
         for f in files:
@@ -110,7 +110,6 @@ def loadGhosts(player_id, state):
         else:
             while not (g.states[0].roadTime >= start_rt and g.states[1].roadTime <= start_rt):
                 del g.states[0]
-#        del g.states[0]
 
 
 def sigint_handler(num, frame):
@@ -280,7 +279,7 @@ class UDPHandler(socketserver.BaseRequestHandler):
                             if recv.state.roadTime <= start_rt and last_rt >= start_rt:
                                 ghosts = True
                 if recv.state.roadTime == last_rt:
-                    print('course',course(recv.state),'roadID',roadID(recv.state),'roadTime',recv.state.roadTime)
+                    print('course', course(recv.state), 'roadID', roadID(recv.state), 'isForward', isForward(recv.state), 'roadTime', recv.state.roadTime)
             last_rt = recv.state.roadTime
 
         message = udp_node_msgs_pb2.ServerToClient()
