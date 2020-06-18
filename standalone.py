@@ -42,8 +42,8 @@ play_count = 0
 last_rt = 0
 last_recv = 0
 ghosts = False
-start_rt = 0
 start_road = 0
+start_rt = 0
 update_freq = 3
 timeout = 10
 
@@ -105,10 +105,10 @@ def loadGhosts(player_id, state):
         while roadID(g.states[0]) != start_road:
             del g.states[0]
         if isForward(g.states[0]):
-            while not (g.states[0].roadTime <= start_rt and g.states[1].roadTime >= start_rt):
+            while not (g.states[0].roadTime <= start_rt <= g.states[1].roadTime):
                 del g.states[0]
         else:
-            while not (g.states[0].roadTime >= start_rt and g.states[1].roadTime <= start_rt):
+            while not (g.states[0].roadTime >= start_rt >= g.states[1].roadTime):
                 del g.states[0]
 
 
@@ -273,10 +273,10 @@ class UDPHandler(socketserver.BaseRequestHandler):
                         last_rec = t
                     if not ghosts and play.ghosts and roadID(recv.state) == start_road:
                         if isForward(recv.state):
-                            if recv.state.roadTime >= start_rt and last_rt <= start_rt:
+                            if recv.state.roadTime >= start_rt >= last_rt:
                                 ghosts = True
                         else:
-                            if recv.state.roadTime <= start_rt and last_rt >= start_rt:
+                            if recv.state.roadTime <= start_rt <= last_rt:
                                 ghosts = True
                 if recv.state.roadTime == last_rt:
                     print('course', course(recv.state), 'roadID', roadID(recv.state), 'isForward', isForward(recv.state), 'roadTime', recv.state.roadTime)
