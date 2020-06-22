@@ -1,15 +1,11 @@
 course,spawnRoad,isForward,startRoad,roadTime,name
-2,0,True,0,996941,Richmond
-6,0,True,0,987711,Downtown
-6,0,False,0,987711,Downtown Reverse
-6,22,True,23,788778,Volcano
-6,36,False,35,546940,Jungle
-6,81,True,81,30490,Desert
+2,0,,0,996941,Richmond
+6,0,,0,987711,Downtown
+6,22,,23,788778,Volcano Circuit
+6,36,,35,546940,Jungle Circuit
+6,81,True,81,942254,Desert Flats
 6,81,False,81,913245,Titans Grove
-7,0,True,0,532687,London
-7,0,False,0,532687,London Reverse
-8,4,True,4,173378,New York
-8,4,False,4,173378,New York Reverse
-9,7,True,7,157428,Innsbruck
-11,0,True,0,5125,Yorkshire
-11,0,False,0,5125,Yorkshire Reverse
+7,0,,0,532687,London
+8,4,,4,173378,New York
+9,7,,7,157428,Innsbruck
+11,0,,0,5125,Yorkshire
