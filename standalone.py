@@ -71,21 +71,11 @@ def saveGhost(player_id, name):
 
 def loadGhosts(player_id, state):
     global play
-    global start_rt
     global start_road
+    global start_rt
     if not player_id: return
     folder = '%s/%s/ghosts/load' % (STORAGE_DIR, player_id)
     if not os.path.isdir(folder): return
-    start_road = roadID(state)
-    start_rt = 0
-    sl_file = '%s/start_lines.csv' % STORAGE_DIR
-    if os.path.isfile(sl_file):
-        with open(sl_file, 'r') as fd:
-            sl = [tuple(line) for line in csv.reader(fd)]
-            rt = [t for t in sl if t[0] == str(course(state)) and t[1] == str(roadID(state)) and t[2] == str(isForward(state))]
-            if rt:
-                start_road = int(rt[0][3])
-                start_rt = int(rt[0][4])
     s = list()
     for (root, dirs, files) in os.walk(folder):
         for f in files:
@@ -97,6 +87,16 @@ def loadGhosts(player_id, state):
                         h = play.ghosts.add()
                         h.CopyFrom(g)
                         s.append(g.states[0].roadTime)
+    start_road = roadID(state)
+    start_rt = 0
+    sl_file = '%s/start_lines.csv' % STORAGE_DIR
+    if os.path.isfile(sl_file):
+        with open(sl_file, 'r') as fd:
+            sl = [tuple(line) for line in csv.reader(fd)]
+            rt = [t for t in sl if t[0] == str(course(state)) and t[1] == str(roadID(state)) and (t[2] == str(isForward(state)) or not t[2])]
+            if rt:
+                start_road = int(rt[0][3])
+                start_rt = int(rt[0][4])
     if not start_rt:
         s.append(state.roadTime)
         if isForward(state): start_rt = max(s)
