@@ -256,6 +256,7 @@ def api_profiles_me():
             cur.execute('UPDATE segment_result SET player_id = ? WHERE player_id = ?', (str(selected_profile), str(profile.id)))
             g.db.commit()
             profile.id = selected_profile
+        profile.is_connected_to_strava = True
         if not profile.email:
             profile.email = 'user@email.com'
         # clear f60 to remove free trial limit
